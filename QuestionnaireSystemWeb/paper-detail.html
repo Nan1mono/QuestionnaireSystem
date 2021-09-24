@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>起点问卷调查-</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.js"></script>
+    <script>
+        var detailUrl = "http://localhost:8080/QuestionnaireSystem/getPaper";               // paper详情URL
+        var fieldListUrl = "http://localhost:8080/QuestionnaireSystem/listField";           // field详情URL
+        var selectorListUrl = "http://localhost:8080/QuestionnaireSystem/listSelector";     // selector详情URL
+        var subPaperUrl = "http://localhost:8080/QuestionnaireSystem/sub";
+        var getGroupIdUrl = "http://localhost:8080/QuestionnaireSystem/getGroupId";
+
+        var savePaperUrl = "http://localhost:8080/QuestionnaireSystem/updatePaper"; // 插入/更新 paper的URL
+
+        $(document).ready(function(){
+            // 从地址栏中取出paperId
+            var locationHref = location.href;
+            var paperId = locationHref.split("?")[1].split("=")[1];
+            // 通过ajax同步请求groupId
+            $.ajax({
+                async: false, //同步请求
+                type:"get",
+                url:getGroupIdUrl,
+                success:function(res){
+                    // 将获取的groupId存储在影藏域中
+                    $("#groupId").val(res.msg);
+                }
+            });
+            // 同步加载问卷信息
+            $.ajax({
+                type:"get",
+                async:false,
+                url:detailUrl,
+                data:{paperId,paperId},
+                success:function(res){
+                    console.log(res);
+                    if(res.code==200 && res.obj){
+                        // 展示问卷信息
+                        let paper = res.obj;
+                        var paperTitle = $("#paperTitle");
+                        paperTitle.find("#paperId").val(paper.paperId);
+                        paperTitle.find("h1").text(paper.paperTitle);
+                        paperTitle.find("p em small").text(paper.paperDesc);
+                    }
+                    //显示完成问卷，接下来就是动态的生成问卷详情信息
+                    //查询所有的域
+                    $.ajax({
+                        type:"get",
+                        async:false,
+                        url:fieldListUrl,
+                        data:{paperId,paperId},
+                        success:function(fieldRes){
+                            if(fieldRes.code==200 && fieldRes.data){
+                                var fields = fieldRes.data;
+                                $.each(fields,function(index,item){
+                                    let selectors = undefined;
+                                    if(item.fieldType == 4 || item.fieldType == 5){
+                                        $.ajax({
+                                            type:"GET",
+                                            url:selectorListUrl,
+                                            data:{fieldId:item.fieldId},
+                                            success:function(selectorsRes){
+                                                selectors = selectorsRes.code==200 ? selectorsRes.data:undefined;
+                                            },
+                                            async:false
+                                        });
+                                    }
+                                    // 在页面生成一个域信息
+                                    createFieldDiv1111(item,selectors);
+                                });
+                                
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        function createFieldDiv1111(field,selectors){
+            var type = field.fieldType+"";
+            var ul = $("#fields").find("ul");
+            var li = $("<li class='list-group-item'></li>");
+            li.append("<h4>"+field.fieldName+"</h4>");
+            li.append("<small><em>"+field.fieldDesc+"</em></small>")
+            switch(type){
+                case "1":
+                    li.append("<p>"+field.fieldDesc+"</p>");
+                    break;
+                case "2":
+                    li.append("<p><input type='text' name='text_"+field.fieldId+"' class='form-control'></p>");
+                    break;
+                case "3":
+                    li.append("<p><textarea name='textarea_"+field.fieldId+"' rows='3' class='form-control'></textarea></p>");
+                    break;
+                case "4":
+                    $.each(selectors,function(index,item){
+                        li.append("<div class='radio'><label><input type='radio' value='"+item.selectorText+"' name='radio_"+field.fieldId+"'>"+item.selectorText+"<label></div>")    
+                    });
+                    break;
+                case "5":
+                    $.each(selectors,function(index,item){
+                        li.append("<div class='checkbox'><label><input value='"+item.selectorText+"' type='checkbox' name='checkbox_"+field.fieldId+"'>"+item.selectorText+"<label></div>")    
+                    });
+                    break;
+            }
+            ul.append(li);
+        }
+    </script>
+</head>
+<body class="container">
+    <form id="paperForm">
+        <input type="hidden" id="groupId" name="groupId">
+        <div class="row" id="paperTitle">
+            <input type="hidden" name="paperId" id="paperId">
+            <h1></h1>
+            <p><em><small></small></em></p>
+        </div>
+        <div class="row" id="fields">
+            <ul class="list-group">
+
+            </ul>
+        </div>
+        <div class="row" id="subBtn">
+            <button type="button" id="subBtn" class="btn btn-primary btn-lg btn-block">提交</button>
+        </div>
+    </form>
+    <script>
+        $("#subBtn").click(function(){
+            $.post(subPaperUrl,$("#paperForm").serialize(),function(result){
+                alert(result.msg);
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function(){
+            // 从地址栏中取出paperId
+            var locationHref = location.href;
+            var paperId = locationHref.split("?")[1].split("=")[1];
+            $.get(detailUrl,{paperId:paperId},function(res){
+                if(res.code==200){
+                    if((res.obj.paperStatus+"")!='1'){
+                        $("#paperForm *").prop("disabled",true);
+                        $("#paperTitle").append("<em style='color:red'>该问卷未开放，暂时无法使用</em>");
+                    }
+                }
+            })
+        });
+    </script>
+</body>
+</html>

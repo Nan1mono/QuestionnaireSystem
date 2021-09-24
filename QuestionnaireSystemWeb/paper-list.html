@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- 检查cookie -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script src="js/check.js"></script>
+</head>
+
+<body class="container">
+    <div class="row">
+        <ol class="breadcrumb">
+            <li><a href="javascript:void(0)">问卷管理</a></li>
+            <li class="active">问卷列表</li>
+        </ol>
+    </div>
+    <div class="row">
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="paperName">标题</label>
+                <input type="text" class="form-control" name="paperName" id="paperTitle" placeholder="问卷标题">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputEmail2">状态</label>
+                <select id="paperStatus" class="form-control">
+                    <option value="0">全部</option>
+                    <option value="1">开放</option>
+                    <option value="2">关闭</option>
+                    <option value="3">废弃</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="paperName">时间范围</label>
+                <input type="text" class="form-control" name="startTime" id="startTime" placeholder="开始时间">
+                ~
+                <input type="text" class="form-control" name="endTime" id="endTime" placeholder="结束时间">
+            </div>
+            <button id="searchBtn" type="button" class="btn btn-default"><span
+                    class="glyphicon glyphicon-search"></span></button>
+        </form>
+    </div>
+    <div class="row">
+        <table id="paperList" class="table">
+
+        </table>
+
+        <div id="opBar">
+            <a onclick="detail(this)" href="javascript:void(0)">查看</a> /
+            <a onclick="inputEdit(this)" href="javascript:void(0)">编辑</a> /
+            <a onclick="deleteNotice(this)" href="javascript:void(0)">删除</a> /
+            <a onclick="dataList(this)" href="javascript:void(0)">已提交数据列表</a> /
+            <a onclick="showDetail(this)" href="javascript:void(0)">分享</a>
+        </div>
+    </div>
+    <div class="row">
+        <nav id="pageBar" aria-label="Page navigation">
+            <ul class="pagination">
+                <li>
+                    <a href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li><a href="#">1</a></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
+                <li><a href="#">4</a></li>
+                <li><a href="#">5</a></li>
+                <li>
+                    <a href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- 详情的弹窗 -->
+    <!-- Modal -->
+    <div class="modal fade" id="paperDetail" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 h4 class="modal-title" id="myModalLabel">问卷详情</h4>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group">
+
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 状态调整框 -->
+    <div id="stCheckBox" style="display: none;">
+        <div class="status-toggle">
+            <input type="checkbox" class="check">
+            <label class="checktoggle">checkbox</label>
+        </div>
+    </div>
+
+    <script>
+        // 还原paperId
+        paperId = -1;
+
+        var url = "http://localhost:8080/QuestionnaireSystem/listPaperByPage"; // paper列表URL
+        var search_url = "http://localhost:8080/QuestionnaireSystem/listPaperFuzzy"; // paper搜索URL
+        var deletePaperURL = "http://localhost:8080/QuestionnaireSystem/deletePaper"; // paper删除URL
+
+        var detailUrl = "http://localhost:8080/QuestionnaireSystem/getPaper"; // paper详情URL
+        var fieldListUrl = "http://localhost:8080/QuestionnaireSystem/listField"; // field详情URL
+        var selectorListUrl = "http://localhost:8080/QuestionnaireSystem/listSelector"; // selector详情URL
+
+        var updatePaperStatusURL = "http://localhost:8080/QuestionnaireSystem/updatePaperStatus"; // 插入/更新 paper的URL
+
+        // 详情按钮的函数
+        function detail(ele) {
+            // 取出问卷的id
+            var paperId = $(ele).parent().attr("dataid");
+            //查询问卷的详情数据
+            $.get(detailUrl, {
+                paperId: paperId
+            }, function (result) {
+                var ul = $("#paperDetail .modal-body ul");
+                ul.empty();
+                if (result.code == 200) {
+                    if (result.obj) {
+                        var paper = result.obj;
+                        ul.append("<li class='list-group-item'><h3>" + paper.paperTitle + "</h2></li>");
+                        ul.append("<li class='list-group-item'>" + paper.paperDesc + "</li>");
+                        ul.append("<li class='list-group-item'><hr/></li>");
+                        //查询所有的域
+                        $.get(fieldListUrl, {
+                            paperId: paperId
+                        }, function (res) {
+                            if (res.code == 200) {
+                                if (res.data) {
+                                    //处理所有的域
+                                    $.each(res.data, function (index, item) {
+                                        // 显示域
+                                        var li = $("<li class='list-group-item' fieldId='" +
+                                            item.fieldId + "'>");
+                                        li.append("<h4>" + item.fieldName + "</h4>");
+                                        if (item.fieldDesc) {
+                                            li.append("<i>" + item.fieldDesc + "</i>")
+                                        }
+                                        //判断域的类型
+                                        switch (item.fieldType) {
+                                            case 1: //文本说明
+                                                //li.append("<b>"+item.fieldDesc+"</b>")
+                                                break;
+                                            case 2: //单行文本框
+                                                li.append(
+                                                    "<input type='text' class='form-control' name='text" +
+                                                    item.fieldId + "'>");
+                                                break;
+                                            case 3: //多行文本
+                                                li.append("<textarea name='textarea" + item
+                                                    .fieldId +
+                                                    "' rows='3' class='form-control'></textarea>"
+                                                    );
+                                                break;
+                                            case 4: //单选按钮
+                                                $.ajax({type:"get",async:false, url:selectorListUrl,data: {
+                                                    fieldId: item.fieldId
+                                                }, success:function (selectorRes) {
+                                                    // 处理选项
+                                                    if (selectorRes.code == 200) {
+                                                        if (selectorRes.data) {
+                                                            $.each(selectorRes.data,
+                                                                function (index,
+                                                                    item) {
+                                                                    li.append(
+                                                                        "<div class='radio'><label><input type='radio' value='" +
+                                                                        item
+                                                                        .selectorText +
+                                                                        "' name='radio" +
+                                                                        item
+                                                                        .fieldId +
+                                                                        "'>" +
+                                                                        item
+                                                                        .selectorText +
+                                                                        "<label></div>"
+                                                                        );
+                                                                });
+                                                        }
+                                                    }
+                                                }});
+                                                break;
+                                            case 5: //多选按钮
+                                                $.ajax({type:"get",url:selectorListUrl, data:{
+                                                    fieldId: item.fieldId
+                                                },success: function (selectorRes) {
+                                                    // 处理选项
+                                                    if (selectorRes.code == 200) {
+                                                        if (selectorRes.data) {
+                                                            $.each(selectorRes.data,
+                                                                function (index,
+                                                                    item) {
+                                                                    li.append(
+                                                                        "<div class='checkbox'><label><input type='checkbox' value='" +
+                                                                        item
+                                                                        .selectorText +
+                                                                        "' name='checkbox" +
+                                                                        item
+                                                                        .fieldId +
+                                                                        "'>" +
+                                                                        item
+                                                                        .selectorText +
+                                                                        "<label></div>"
+                                                                        );
+                                                                });
+                                                        }
+                                                    }
+                                                }});
+                                                break;
+                                        }
+                                        //将li加入ul
+                                        ul.append(li);
+                                    });
+                                }
+                            }
+                            //展示窗体
+                            $("#paperDetail").modal('show');
+                        });
+                    }
+                }
+            });
+        }
+
+        // 编辑按钮的事件
+        function inputEdit(ele) {
+            paperId = $(ele).parent().attr("dataid");
+            $("#content").load("paper-create.html");
+        }
+
+        function showDetail(ele) {
+            location.href = "paper-detail.html?paperId=" + $(ele).parent().attr("dataid");
+        }
+
+        // 已经提交的数据列表事件
+        function dataList(ele) {
+            // 给全局的
+            answerListPaperId = $(ele).parent().attr("dataid");
+            // 加载answerlist
+            $("#content").load("paper-answer-list.html");
+        }
+
+
+        var colums = [{
+                field: "paperId",
+                title: "#"
+            },
+            {
+                field: "paperTitle",
+                title: "标题",
+                formatter: function (value) {
+                    if (value.length > 5) {
+                        return value.substring(0, 4) + "...";
+                    }
+                    return value;
+                }
+            },
+            {
+                field: "paperCreated",
+                title: "创建时间",
+                formatter: function (value) {
+                    return value.substring(0, value.length - 2);
+                }
+            },
+            {
+                field: "paperStatus",
+                title: "状态",
+                formatter: function (value) {
+                    //这里的formatter函数就是格式化函数。  
+                    // value就是这一列的原始值（1,2,3） 
+                    // 这个函数的返回值将显示在页面上。
+                    var ckDiv = $("#stCheckBox").clone();
+                    var stCkId = "ck" + new Date().getTime() + parseInt((Math.random() * 10000));
+
+                    ckDiv.find("input").attr("id", stCkId);
+                    ckDiv.find("label").attr("for", stCkId);
+                    console.log((value + "") == '1');
+                    if ((value + "") == '1') {
+                        ckDiv.find("input").attr("checked", true);
+                    }
+                    // ckDiv.find("input").remove("checked");
+                    ckDiv.css("display", "block");
+                    return ckDiv.html();
+                }
+            },
+            {
+                field: "paperCount",
+                title: "提交人数",
+                formatter: function (value) {
+                    if (value == 0) {
+                        return "暂无人员提交";
+                    }
+                    return "提交人数:" + value;
+                }
+            },
+            {
+                field: 'st9527-options',
+                title: "操作",
+                barId: 'opBar'
+            }
+        ]
+        st9527.table("paperList", colums, url, {
+            page: 1,
+            size: 10
+        }, "pageBar", bindOpenOrClose);
+        // 查询按钮的事件
+        $("#searchBtn").bind('click', function () {
+            page = 1;
+            queryData(page)
+        });
+        // 查询数据
+        function queryData(page) {
+            // 获取表单中的查询条件
+            let paperTitle = $("#paperTitle").val();
+            let paperStatus = $("#paperStatus").val();
+            let startTime = $("#startTime").val();
+            let endTime = $("#endTime").val();
+            st9527.table("paperList",
+                colums,
+                search_url, {
+                    page: page,
+                    size: 10,
+                    paperTitle: paperTitle,
+                    paperStatus: paperStatus,
+                    startTime: startTime,
+                    endTime: endTime
+                },
+                "pageBar", bindOpenOrClose);
+        }
+
+        $("#startTime").datetimepicker({
+            lang: 'ch',
+            format: 'Y-m-d H:i:s'
+        });
+        $("#endTime").datetimepicker({
+            lang: 'ch',
+            format: 'Y-m-d H:i:s'
+        });
+
+        // 给所有的状态开关赶牛绑定事件
+        function bindOpenOrClose() {
+            $(".status-toggle input").unbind("click").bind("click", function () {
+                let paperId = $(this).parent().parent().parent().find("td:first").text();
+                var status = $(this).prop("checked") ? 1 : 2;
+                //发送请求
+                $.post(updatePaperStatusURL, {
+                    paperId: paperId,
+                    paperStatus: status
+                }, function () {
+                    //  不需要做任何处理
+                })
+            });
+        }
+    </script>
+    </script>
+
+    <script>
+        // 删除按钮事件
+        function deleteNotice(object) {
+            paperId = $(object).parent().attr("dataid");
+            var msg = "确定要删除ID为" + paperId + "的文章？";
+            msgAlertDelete(msg, "确认删除");
+        }
+
+        // 确认删除按钮事件
+        $("#deleteConfirmButton").click(function () {
+            $.get(deletePaperURL, {
+                paperId: paperId
+            }, function () {
+                st9527.table("paperList", colums, url, {
+                    page: 1,
+                    size: 10
+                }, "pageBar");
+            });
+        });
+    </script>
+    <!-- 删除部分 -->
+    <!-- 模态窗口 -->
+    <div class="modal fade" id="msg-win" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal"
+                        id="deleteConfirmButton">Confirm</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // alert弹窗提示
+        function msgAlertDelete(msg, title) {
+            var win = $("#msg-win");
+            $("#msg-win .modal-body").text(msg);
+            if (title) {
+                $("#msg-win .modal-title").text(title);
+            }
+            //弹窗
+            win.modal('show');
+        }
+    </script>
+</body>
+
+</html>

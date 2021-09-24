@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- 检查cookie -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script src="js/check.js"></script>
+</head>
+<body class="container">
+    <div class="row">
+        <ol class="breadcrumb">
+            <li><a href="javascript:void(0)">问卷管理</a></li>
+            <li class="active">问卷提交数据列表</li>
+        </ol>
+    </div>
+
+    <div class="row">
+        <!-- 答案列表 -->
+        <table id="answerList" class="table">
+
+        </table>
+
+        <div id="opBar">
+            <a onclick="detail(this)" href="javascript:void(0)">查看</a> / 
+            <a onclick="deleteData(this)" href="javascript:void(0)">删除</a>
+        </div>
+    </div>
+    <div class="row">
+        <nav id="pageBar" aria-label="Page navigation">
+            <ul class="pagination">
+                <li>
+                <a href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+                </li>
+                <li><a href="#">1</a></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
+                <li><a href="#">4</a></li>
+                <li><a href="#">5</a></li>
+                <li>
+                <a href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <script>
+        var deleteAnswerUrl = "http://localhost:8080/QuestionnaireSystem/deleteAnswer";
+        // 删除按钮的事件
+        function deleteData(ele){
+            //保存当前的this对象
+            var _this = $(ele);
+             // 获取整个json格式的字符串
+            var json  = $(ele).parent().attr("data");
+            //解析字符串为对象
+            var jsonObj = JSON.parse(json);
+            //询问
+            if(confirm("您确定删除选中数据？")){
+                //发送请求
+                $.get(deleteAnswerUrl,{groupId:jsonObj.groupId},function(res){
+                    if(res.code==200){
+                        //删除那个tr
+                        _this.parent().parent().parent().remove();
+                    }
+                })
+            }
+        }
+        // 查看按钮事件
+        function detail(ele){
+            // 获取整个json格式的字符串
+            var json  = $(ele).parent().attr("data");
+            //解析字符串为对象
+            var jsonObj = JSON.parse(json);
+            console.log(jsonObj)
+            // 将jsonObj的属性全部显示在窗体中
+            var ul = $("#answerDetail .modal-body ul");
+            // 清空ul
+            ul.empty();
+            $.each(answerListColumns,function(index,item){
+                if(item.field!='st9527-options')
+                ul.append("<li class='list-group-item'><h4>"+item.title+"</h4><p>"+jsonObj[item.field]+"</p></li>");
+            });
+            $("#answerDetail").modal('show');
+        }
+    </script>
+
+<!-- 详情的弹窗 -->
+    <!-- Modal -->
+    <div class="modal fade" id="answerDetail" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 h4 class="modal-title" id="myModalLabel">提交的答案详情</h4>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group">
+                    
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // 查询所有的域
+        var getFieldsUlr = "http://localhost:8080/QuestionnaireSystem/listField";
+        var answerListUrl = "http://localhost:8080/QuestionnaireSystem/answerList"
+        var  answerListColumns = [];
+        // 要有paperId,这里使用的是answerListPaperId
+        //加载所有的域，动态生成columns
+        $.ajax({
+            type:"GET",
+            url:getFieldsUlr,
+            data:{paperId:answerListPaperId},
+            async:false,
+            success:function(res){
+                if(res.code==200 && res.data){
+                    var fields = res.data;
+                    // var columns = [];
+                    $.each(fields,function(index,item){
+                        //根据域，个数组添加列
+                        var col = {"title":item.fieldName};
+                        switch(item.fieldType){
+                            case 2:
+                                col['field']="text_"+item.fieldId;
+                                break;
+                            case 3:
+                                col['field']="textarea_"+item.fieldId;
+                                col.formatter=function(value){
+                                    return (value&&value.length) > 5 ?(value.substring(0,5)+"..."):value;
+                                }
+                                break;
+                            case 4:
+                                col['field']="radio_"+item.fieldId;
+                                break;
+                            case 5:
+                                col['field']="checkbox_"+item.fieldId;
+                                col.formatter=function(value){
+                                    return (value&&value.length) > 5 ?(value.substring(0,5)+"..."):value;
+                                }
+                                break;
+                        }
+                        //将列加入到columns中
+                        answerListColumns.push(col);
+                    });
+                    //最后添加一个操作栏
+                    answerListColumns.push({field:"st9527-options",title:"操作",barId:'opBar'});
+                    // 列说明已经准备好，就可以直接生成数据列表
+                    st9527.table("answerList",answerListColumns,answerListUrl,{page:1,size:10,paperId:answerListPaperId},"pageBar");
+                }
+            }
+        });
+        </script>
+    </script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body class="container">
+    <div class="row">
+        <ol class="breadcrumb">
+            <li><a href="javascript:void(0)">管理员管理</a></li>
+        </ol>
+    </div>
+    <table id="userList" class="table">
+
+    </table>
+    <nav id="pageBar" aria-label="Page navigation">
+        <ul class="pagination">
+            <li>
+                <a href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li><a href="#">1</a></li>
+            <li><a href="#">2</a></li>
+            <li><a href="#">3</a></li>
+            <li><a href="#">4</a></li>
+            <li><a href="#">5</a></li>
+            <li>
+                <a href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <div id="opBar">
+        <a onclick="userEdit(this)" href="javascript:void(0)">编辑</a> /
+        <a onclick="userDelete(this)" href="javascript:void(0)">删除</a>
+    </div>
+
+    <!-- 确认删除模态窗口 -->
+    <div class="modal fade" id="msg-win" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal"
+                        id="deleteConfirmButton">Confirm</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑模态窗口 -->
+    <div class="modal fade" id="edit-win" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control" placeholder="输入新账号" id="newUserName">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal"
+                        id="editConfirmButton">Confirm</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="js/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.js"></script>
+<script>
+    var userListURL = "http://localhost:8080/QuestionnaireSystem/listUser"; // 用户列表url
+    var deleteUserURL = "http://localhost:8080/QuestionnaireSystem/deleteUser"; // 删除用户url
+    var updateUserURL = "http://localhost:8080/QuestionnaireSystem/updateUser"; // 更新用户url
+
+
+    var colums = [{
+            field: "userId",
+            title: "#"
+        },
+        {
+            field: "userName",
+            title: "账号",
+            formatter: function (value) {
+                if (value.length > 10) {
+                    return value.substring(0, 4) + "...";
+                }
+                return value;
+            }
+        },
+        {
+            field: 'st9527-options',
+            title: "操作",
+            barId: 'opBar'
+        }
+    ]
+    st9527.table("userList", colums, userListURL, {
+        page: 1,
+        size: 10
+    }, "pageBar");
+
+    // 删除管理员
+    function userDelete(object) {
+        userId = $(object).parent().attr("dataid");
+        var msg = "确定要删除ID为" + userId + "的用户？";
+        confirmDeleteUser(msg, "确认删除");
+    }
+
+    // 确认删除弹窗提示
+    function confirmDeleteUser(msg, title) {
+        var win = $("#msg-win");
+        $("#msg-win .modal-body").text(msg);
+        if (title) {
+            $("#msg-win .modal-title").text(title);
+        }
+        //弹窗
+        win.modal('show');
+    }
+
+    // 确认删除按钮事件
+    $("#deleteConfirmButton").click(function () {
+        $.get(
+            deleteUserURL, {
+                userId: userId
+            },
+            function () {
+                st9527.table("userList", colums, userListURL, {
+                    page: 1,
+                    size: 10
+                }, "pageBar");
+            }
+        );
+    });
+
+
+    // 根据编辑管理员(账号)
+    function userEdit(object) {
+        userId = $(object).parent().attr("dataid");
+        editUserName("修改账号");
+    }
+
+    // 编辑提示框
+    function editUserName(title) {
+        var win = $("#edit-win");
+        if (title) {
+            $("#msg-win .modal-title").text(title);
+        }
+        //弹窗
+        win.modal('show');
+    }
+
+    // 确认修改按钮事件
+    $("#editConfirmButton").click(function () {
+        var userName = $("#newUserName").val();
+        $.get(
+            updateUserURL, {
+                userId: userId,
+                userName: userName
+            },
+            function () {
+                st9527.table("userList", colums, userListURL, {
+                    page: 1,
+                    size: 10
+                }, "pageBar");
+            }
+        );
+    });
+</script>
+
+</html>

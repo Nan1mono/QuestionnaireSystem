@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- 检查cookie -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script src="js/check.js"></script>
+    <style>
+        .fieldActive{
+            border:1px dotted #2e73ff;
+            background-color: #eaf1ff;
+        }
+        .fieldColumn:hover{
+            border:1px dotted #2e73ff;
+        }
+    </style>
+
+</head>
+<body class="container">
+    <div class="row">
+        <ol class="breadcrumb">
+            <li><a href="javascript:void(0)">问卷管理</a></li>
+            <li class="active">添加问卷</li>
+        </ol>
+    </div>
+    <div class="row" >
+        <div class="col-md-2 fieldType" >
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-sm-9">文本说明</div>
+                        <div index='1' class="col-sm-3" style="cursor: pointer;">
+                            <span class="glyphicon glyphicon-arrow-right"></span>
+                        </div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-sm-9">单行文本框</div>
+                        <div index='2' class="col-sm-3" style="cursor: pointer;">
+                            <span class="glyphicon glyphicon-arrow-right"></span>
+                        </div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-sm-9">多行文本</div>
+                        <div index='3' class="col-sm-3" style="cursor: pointer;">
+                            <span class="glyphicon glyphicon-arrow-right"></span>
+                        </div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-sm-9">单选按钮</div>
+                        <div index='4' class="col-sm-3" style="cursor: pointer;">
+                            <span class="glyphicon glyphicon-arrow-right"></span>
+                        </div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-sm-9">多选按钮</div>
+                        <div index='5' class="col-sm-3" style="cursor: pointer;">
+                            <span class="glyphicon glyphicon-arrow-right"></span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <div class="btn-group btn-group-vertical" role="group" >
+                <button type="button" id="removeFieldBtn" class="btn btn-default">移除域</button>
+            </div>
+        </div>
+        <div class="col-md-6" id="paperBox">
+            <div id="paperTitle" index="0" class="row fieldActive fieldColumn" style="border-bottom:1px dotted;">
+                <h2>问卷标题</h2>
+                <p>这里是问卷的说明内容</p>
+            </div>
+            <hr/>
+        </div>
+        <div class="col-md-4" id="fieldAttr">
+            <div id="paperAttr" index="0" class="row">
+                <div  class="col-md-10 col-md-offset-1" style="padding:5px; border: 1px solid #ccc; border-radius: 5px 5px; width: 80%;">
+                    <h4>问卷标题</h4>
+                    <input type="text" name="paperTitleText" class="form-control">
+                    <h4>问卷说明</h4>
+                    <textarea name="paperDesc" rows="5" class="form-control"></textarea>
+                    <p></p>
+                    <input type="button" value="确定" class="form-control btn btn-default">
+                </div>
+            </div>
+            <div index="1" id="wordAttr" class="row" style="display: none;">
+                <div  class="col-md-10 col-md-offset-1" style="padding:5px; border: 1px solid #ccc; border-radius: 5px 5px; width: 80%;">
+                    <h4>字段名称</h4>
+                    <input type="text" name="fieldTitle" class="form-control">
+                    <h4>说明的文本内容</h4>
+                    <textarea name="fieldDesc" rows="5" class="form-control"></textarea>
+                    <p></p>
+                    <input type="button" value="确定" class="form-control btn btn-default">
+                </div>
+            </div>
+            <div index="2" id="singleTextAttr" class="row" style="display: none;">
+                <div  class="col-md-10 col-md-offset-1" style="padding:5px; border: 1px solid #ccc; border-radius: 5px 5px; width: 80%;">
+                    <h4>字段名称</h4>
+                    <input type="text" name="fieldTitle" class="form-control">
+                    <h4>字段说明</h4>
+                    <textarea name="fieldDesc" rows="5" class="form-control"></textarea>
+                    <p></p>
+                    <input type="button" value="确定" class="form-control btn btn-default">
+                </div>
+            </div>
+            <div index="3" id="multipleTextAttr" class="row" style="display: none;">
+                <div  class="col-md-10 col-md-offset-1" style="padding:5px; border: 1px solid #ccc; border-radius: 5px 5px; width: 80%;">
+                    <h4>字段名称</h4>
+                    <input type="text" name="fieldTitle" class="form-control">
+                    <h4>字段说明</h4>
+                    <textarea name="fieldDesc" rows="5" class="form-control"></textarea>
+                    <p></p>
+                    <input type="button" value="确定" class="form-control btn btn-default">
+                </div>
+            </div>
+            <div index="4" id="radioAttr" class="row" style="display: none;">
+                <div  class="col-md-10 col-md-offset-1" style="padding:5px; border: 1px solid #ccc; border-radius: 5px 5px; width: 80%;">
+                    <h4>字段名称</h4>
+                    <input type="text" name="fieldTitle" class="form-control">
+                    <h4>字段说明</h4>
+                    <textarea name="fieldDesc" rows="5" class="form-control"></textarea>
+                    <h4>选项 <span style="cursor: pointer;" class="glyphicon glyphicon-plus"></span></h4>
+                    <p name="selectors">
+                        <!-- 动态生成 -->
+                    </p>
+                    <p></p>
+                    <input type="button" value="确定" class="form-control btn btn-default">
+                </div>
+            </div>
+            <div index="5" id="checkboxAttr" class="row" style="display: none;">
+                <div  class="col-md-10 col-md-offset-1" style="padding:5px; border: 1px solid #ccc; border-radius: 5px 5px; width: 80%;">
+                    <h4>字段名称</h4>
+                    <input type="text" name="fieldTitle" class="form-control">
+                    <h4>字段说明</h4>
+                    <textarea name="fieldDesc" rows="5" class="form-control"></textarea>
+                    <h4>选项   <span style="cursor: pointer;" class="glyphicon glyphicon-plus"></span> </h4>
+                    
+                    <p name="selectors">
+
+                    </p>
+                    <p></p>
+                    <input type="button" value="确定" class="form-control btn btn-default">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 配置url -->
+    <script>
+        var savePaperUrl = "http://localhost:8080/QuestionnaireSystem/updatePaper"; // 插入/更新 paper的URL
+        var saveFieldUrl = "http://localhost:8080/QuestionnaireSystem/updateField"; // 插入/更新 field的URL
+        var deleteFieldUrl = "http://localhost:8080/QuestionnaireSystem/deleteField"; // 删除field的URL
+
+        var detailUrl = "http://localhost:8080/QuestionnaireSystem/getPaper"; // paper详情URL
+        var fieldListUrl = "http://localhost:8080/QuestionnaireSystem/listField"; // field详情URL
+        var selectorListUrl = "http://localhost:8080/QuestionnaireSystem/listSelector"; // selector详情URL
+    </script>
+
+
+    <script>
+
+
+        var fieldSelected = undefined;// 保存当前处于激活状态的域对象   
+
+        $(document).scroll(function(){
+            $(".fieldType,#fieldAttr").css({"padding-top":$(document).scrollTop()+"px"});
+        })
+
+        // 从地址栏中尝试获取paperId---------------------------------------
+        if(paperId!=-1){
+            //将当前选中的域置空
+            fieldSelected = undefined;
+            // 根据问卷编号查询问卷信息。
+            // 根据问卷的编号查询所有问卷的域。
+            $.ajax({
+                type:"get",
+                async:false,
+                url:detailUrl,
+                cache:false,
+                data:{paperId,paperId},
+                success:function(res){
+                    // 将问卷信息显示在编辑的问卷标题位置
+                    console.log("加载了问卷信息:"+res.obj);
+                    if(res.code==200 && res.obj){
+                        let paper = res.obj;
+                        var titleField = $("#paperTitle");
+                        titleField.attr("fieldId",paper.paperId);
+                        titleField.find("h2").text(paper.paperTitle);
+                        titleField.find("p").text(paper.paperDesc);
+                        titleField.click();
+                    }
+                    //显示完成问卷，接下来就是动态的生成问卷详情信息
+                    //查询所有的域
+                    $.ajax({
+                        type:"get",
+                        async:false,
+                        cache:false,
+                        url:fieldListUrl, // http://192.168.4.2:8088/paper/field/queryByPaperId
+                        data:{paperId,paperId},
+                        success:function(fieldRes){
+                            console.log("加载了域列表:"+fieldRes.data);
+                            if(fieldRes.code==200 && fieldRes.data){
+                                var fields = fieldRes.data;
+                                $.each(fields,function(index,item){
+                                    console.log(item);
+                                    let selectors = undefined;
+                                    if(item.fieldType == 4 || item.fieldType == 5){
+                                        $.ajax({
+                                            type:"GET",
+                                            cache:false,
+                                            url:selectorListUrl,
+                                            data:{fieldId:item.fieldId},
+                                            success:function(selectorsRes){
+                                                selectors = selectorsRes.code==200 ? selectorsRes.data:undefined;
+                                                console.log(selectors);
+                                            },
+                                            async:false
+                                        });
+                                    }
+                                    createFieldDiv1111(item,selectors);
+                                });
+                                
+                            }
+                        }
+                    });
+                    
+                }
+            });
+        }
+        //---------------------------------------------------------------
+        
+        $(".fieldType [index]").click(function(){
+            // 获取当前的类型索引
+            let index = $(this).attr("index");
+            createFieldDiv1111({fieldType:index});
+        })
+        // 动态生成域，并且加入到页面中
+        /**
+         * 生成一个域的DIV，并且加入到页面中
+         * @param 一个存储者所有field信息的对象。
+         * @param 存储域的选项列表  可选参数
+         * */
+        function createFieldDiv1111(fieldObj,selectors){
+            console.log("开始添加域："+fieldObj);
+            
+            // 类型索引
+            var index = ((fieldObj && fieldObj.fieldType)?fieldObj.fieldType:-1)+"";
+            console.log("index = "+index);
+            //获取存储域的盒子
+            let paperBox = $("#paperBox");
+            // 将当前选中的域修改为非选中状态
+            $(".fieldActive").removeClass("fieldActive");
+            // 创建新的DIV  
+            let fieldDiv = $("<div class='row fieldActive fieldColumn' style='border-bottom:1px dotted;'></div>")
+            // 如果有fieldId就先存储上去
+            if(fieldObj && fieldObj.fieldId){
+                fieldDiv.attr("fieldId",fieldObj.fieldId);
+            }
+            if(fieldObj && fieldObj.fieldDesc){
+                fieldDiv.attr("fieldDesc",fieldObj.fieldDesc);
+            }
+            // 将索引继续绑定到DIV上
+            fieldDiv.attr("index",index);
+            switch(index){
+            case "1":
+                console.log("1111111111")
+                fieldDiv.append("<h4>"+((fieldObj && fieldObj.fieldName) ? fieldObj.fieldName:'文本说明')+"</h4>");
+                fieldDiv.append("<p>"+((fieldObj && fieldObj.fieldDesc)?fieldObj.fieldDesc:"这是一段文本说明")+"</p>");
+                break;
+            case "2":
+                console.log("22222222")
+                fieldDiv.append("<h4>"+((fieldObj && fieldObj.fieldName) ? fieldObj.fieldName:'单行文本框')+"</h4>");
+                fieldDiv.append("<p><input type='text' name='target' class='form-control'></p>");
+                break;
+            case "3":
+                console.log("333333333")
+                fieldDiv.append("<h4>"+((fieldObj && fieldObj.fieldName) ? fieldObj.fieldName:'多行文本框')+"</h4>");
+                fieldDiv.append("<p><textarea name='target' rows='3' class='form-control'></textarea></p>");
+                break;
+            case "4":
+                let radioId = "radio"+new Date().getTime();
+                fieldDiv.append("<h4>"+((fieldObj && fieldObj.fieldName) ? fieldObj.fieldName:'单选按钮')+"</h4>");
+                if(selectors){
+                    $.each(selectors,function(index,item){
+                        fieldDiv.append("<div class='radio'><label><input type='radio' name='"+radioId+"'>"+item.selectorText+"<label></div>")    
+                    });
+                }else{
+                    fieldDiv.append("<div class='radio'><label><input type='radio' name='"+radioId+"'>选项A<label></div>")
+                    fieldDiv.append("<div class='radio'><label><input type='radio' name='"+radioId+"'>选项B<label></div>")
+                    fieldDiv.append("<div class='radio'><label><input type='radio' name='"+radioId+"'>选项C<label></div>")
+                    fieldDiv.append("<div class='radio'><label><input type='radio' name='"+radioId+"'>选项D<label></div>")
+                }
+                break;
+            case "5":
+                let ckId = "radio"+new Date().getTime();
+                fieldDiv.append("<h4>"+((fieldObj && fieldObj.fieldName) ? fieldObj.fieldName:'多选按钮')+"</h4>");
+                if(selectors){
+                    $.each(selectors,function(index,item){
+                        fieldDiv.append("<div class='checkbox'><label><input type='checkbox' name='"+ckId+"'>"+item.selectorText+"<label></div>")    
+                    });
+                }else{
+                    fieldDiv.append("<div class='checkbox'><label><input type='checkbox' name='"+ckId+"'>选项A<label></div>")
+                    fieldDiv.append("<div class='checkbox'><label><input type='checkbox' name='"+ckId+"'>选项B<label></div>")
+                    fieldDiv.append("<div class='checkbox'><label><input type='checkbox' name='"+ckId+"'>选项C<label></div>")
+                    fieldDiv.append("<div class='checkbox'><label><input type='checkbox' name='"+ckId+"'>选项D<label></div>")
+                }
+                break;
+            }
+            // 将div加入页面
+            if(fieldSelected){// 如果当前的激活的域存在，就将新的元素加入到当前激活域的后面
+                fieldSelected.after(fieldDiv);
+            }else{// 不存在就放在box的最后面
+                paperBox.append(fieldDiv);
+            }
+            // 给加入的域添加单击事件
+            fieldDiv.click(function(){
+                // 记录外部函数的this
+                let _this = $(this);
+                // 记录激活的域
+                fieldSelected = $(this);
+                // 获取index
+                let index = $(this).attr("index");
+                // 打开右边的属性配置栏，修改选中样式
+                $("#fieldAttr [index]").hide('fast');
+                $(".fieldActive").removeClass("fieldActive");
+                $(this).addClass("fieldActive")
+                // 给打开的属性配置栏中映射数据
+                switch(index){
+                case "1":
+                    $("#wordAttr").show('fast',function(){
+                        $(this).find("[name=fieldTitle]").val(_this.find("h4").text());
+                        $(this).find("[name=fieldDesc]").val(_this.find("p").text());
+                    });
+                    break;
+                case "2":
+                    $("#singleTextAttr").show('fast',function(){
+                        $(this).find("[name=fieldTitle]").val(_this.find("h4").text());
+                        $(this).find("[name=fieldDesc]").val(_this.attr("fieldDesc"));
+                    });
+                    break;
+                case "3":
+                    $("#multipleTextAttr").show('fast',function(){
+                        $(this).find("[name=fieldTitle]").val(_this.find("h4").text());
+                        $(this).find("[name=fieldDesc]").val(_this.attr("fieldDesc"));
+                    });
+                    break;
+                case "4":
+                    $("#radioAttr").show('fast',function(){
+                        $(this).find("[name=fieldTitle]").val(_this.find("h4").text());
+                        $(this).find("[name=fieldDesc]").val(_this.attr("fieldDesc"));
+                        let radios = _this.find(".radio");
+                        var selectors = $(this).find("[name=selectors]");
+                        selectors.empty();
+                        for(let x = 0;x < radios.length;x ++){
+                            var radio = $(radios[x]);
+                            var text = radio.text();
+                            selectors.append("<div class='row'><div class='col-sm-10'><input type='text' value='"+text+"' class='form-control'/></div><div class='col-sm-2' style='cursor:pointer'><span class='glyphicon glyphicon-minus'></span></div></div>");
+                        }
+                        
+                        //给 "-" 绑事件
+                        $(".glyphicon-minus").unbind().bind('click',function(){
+                            $(this).parent().parent().remove();
+                        });
+                    });
+                    break;
+                case "5":
+                    $("#checkboxAttr").show('fast',function(){
+                        $(this).find("[name=fieldTitle]").val(_this.find("h4").text());
+                        $(this).find("[name=fieldDesc]").val(_this.attr("fieldDesc"));
+                        let radios = _this.find(".checkbox");
+                        var selectors = $(this).find("[name=selectors]");
+                        selectors.empty();
+                        for(let x = 0;x < radios.length;x ++){
+                            var radio = $(radios[x]);
+                            var text = radio.text();
+                            selectors.append("<div class='row'><div class='col-sm-10'><input type='text' value='"+text+"' class='form-control'/></div><div class='col-sm-2' style='cursor:pointer'><span class='glyphicon glyphicon-minus'></span></div></div>");
+                        }
+
+                        //给 - 绑事件
+                        $(".glyphicon-minus").unbind().bind('click',function(){
+                            $(this).parent().parent().remove();
+                        });
+
+                    });
+                }
+            });
+            // 主动调用click事件
+            fieldDiv.click();
+        }
+
+
+        //问卷标题单独添加一个事件
+        $("#paperTitle").click(function(){
+            // 置空当前激活的域
+            fieldSelected = undefined;
+            let index = $(this).attr("index");
+            $("#fieldAttr [index]").hide('fast');
+            $(".fieldActive").removeClass("fieldActive");
+            $(this).addClass("fieldActive")
+            $("#paperAttr").show('fast',function(){
+                $(this).find("[name=paperTitleText]").val($("#paperTitle h2").text());
+                $(this).find("[name=paperDesc]").val($("#paperTitle p").text());
+            });
+        });
+        $("#paperTitle").click();
+
+        //给所有的确定按钮绑定事件
+        $("#fieldAttr [value='确定']").bind('click',function(){
+            var fieldAttrDiv = $(this).parent().parent();
+            var index = fieldAttrDiv.attr("index"); 
+            switch(index){
+            case "0":
+                var paperTitle = fieldAttrDiv.find("[name=paperTitleText]").val();
+                var paperDesc = fieldAttrDiv.find("[name=paperDesc]").val();
+                $("#paperTitle h2").text(paperTitle);
+                $("#paperTitle p").text(paperDesc);
+                // 这里发送保存或者修改问卷的ajax请求。
+                $.post(savePaperUrl,{paperId:paperId,paperTitle:paperTitle,paperDesc:paperDesc},function(result){
+                    //处理保存结果
+                    if(result.code!=200){
+                        //给出提示
+                        msgAlert(result.msg,"保存失敗提示")
+                    }else if(result.code==200){
+                        // 将返回的paperId保存当前的全局变量中
+                        paperId = result.msg;
+                    }
+                });
+                break;
+            case "1":
+                var fieldTitle = fieldAttrDiv.find("[name=fieldTitle]").val();
+                var fieldDesc = fieldAttrDiv.find("[name=fieldDesc]").val();
+                fieldSelected.find("h4").text(fieldTitle);
+                fieldSelected.find("p").text(fieldDesc);
+                //这里发送一个保存或者修改域的请求
+                var tempField = fieldSelected;
+                $.post(saveFieldUrl,
+                    {
+                        fieldType:1,
+                        paperId:paperId,
+                        fieldId:tempField.attr("fieldid"),
+                        fieldTitle:fieldTitle,
+                        fieldDesc:fieldDesc
+                    },
+                    function(result){
+                    //处理保存结果
+                    if(result.code!=200){
+                        //给出提示
+                        msgAlert(result.msg,"保存失敗提示")
+                    }else if(result.code==200){
+                        // 将返回的paperId保存当前的全局变量中
+                        tempField.attr("fieldid",result.msg);
+                    }
+                })
+                break;
+            case "2":
+                var fieldTitle = fieldAttrDiv.find("[name=fieldTitle]").val();
+                var fieldDesc = fieldAttrDiv.find("[name=fieldDesc]").val();
+                fieldSelected.find("h4").text(fieldTitle);
+                fieldSelected.attr("fieldDesc",fieldDesc);
+                //这里发送一个保存或者修改域的请求
+                var tempField = fieldSelected;
+                $.post(saveFieldUrl,{fieldType:2,paperId:paperId,fieldId:tempField.attr("fieldid"),fieldTitle:fieldTitle,fieldDesc:fieldDesc},function(result){
+                    //处理保存结果
+                    if(result.code!=200){
+                        //给出提示
+                        msgAlert(result.msg,"保存失敗提示")
+                    }else if(result.code==200){
+                        // 将返回的paperId保存当前的全局变量中
+                        tempField.attr("fieldid",result.msg);
+                    }
+                })
+                break;
+            case "3":
+                var fieldTitle = fieldAttrDiv.find("[name=fieldTitle]").val();
+                var fieldDesc = fieldAttrDiv.find("[name=fieldDesc]").val();
+                fieldSelected.find("h4").text(fieldTitle);
+                fieldSelected.attr("fieldDesc",fieldDesc);
+                //这里发送一个保存或者修改域的请求
+                var tempField = fieldSelected;
+                $.post(saveFieldUrl,{fieldType:3,paperId:paperId,fieldId:tempField.attr("fieldid"),fieldTitle:fieldTitle,fieldDesc:fieldDesc},function(result){
+                    //处理保存结果
+                    if(result.code!=200){
+                        //给出提示
+                        msgAlert(result.msg,"保存失敗提示")
+                    }else if(result.code==200){
+                        // 将返回的paperId保存当前的全局变量中
+                        tempField.attr("fieldid",result.msg);
+                    }
+                })
+                break;
+            case "4":
+                var fieldTitle = fieldAttrDiv.find("[name=fieldTitle]").val();
+                var fieldDesc = fieldAttrDiv.find("[name=fieldDesc]").val();
+                fieldSelected.find("h4").text(fieldTitle);
+                fieldSelected.attr("fieldDesc",fieldDesc);
+                //这里发送一个保存或者修改域的请求
+                var tempField = fieldSelected;
+                var params = "fieldType=4&paperId="+paperId+"&fieldId="+tempField.attr("fieldid")+"&fieldTitle="+fieldTitle+"&fieldDesc="+fieldDesc;
+                var inputs = fieldAttrDiv.find("[name=selectors] input");
+                fieldSelected.find(".radio").remove();
+                for(var rx = 0;rx < inputs.length;rx ++){
+                    params += "&selectorText="+$(inputs[rx]).val();
+                    fieldSelected.append("<div class='radio'><label><input type='radio' name=''>"+$(inputs[rx]).val()+"<label></div>")
+                }
+                //这里发送一个保存或者修改域的请求
+                var tempField = fieldSelected;
+                $.post(saveFieldUrl,params,function(result){
+                    //处理保存结果
+                    if(result.code!=200){
+                        //给出提示
+                        msgAlert(result.msg,"保存失敗提示")
+                    }else if(result.code==200){
+                        // 将返回的paperId保存当前的全局变量中
+                        tempField.attr("fieldid",result.msg);
+                    }
+                })
+                break;
+            case "5":
+                var fieldTitle = fieldAttrDiv.find("[name=fieldTitle]").val();
+                var fieldDesc = fieldAttrDiv.find("[name=fieldDesc]").val();
+                fieldSelected.find("h4").text(fieldTitle);
+                fieldSelected.attr("fieldDesc",fieldDesc);
+                //这里发送一个保存或者修改域的请求
+                var tempField = fieldSelected;
+                var params = "fieldType=5&paperId="+paperId+"&fieldId="+tempField.attr("fieldid")+"&fieldTitle="+fieldTitle+"&fieldDesc="+fieldDesc;
+                var inputs = fieldAttrDiv.find("[name=selectors] input");
+                fieldSelected.find(".checkbox").remove();
+                for(var rx = 0;rx < inputs.length;rx ++){
+                    params += "&selectorText="+$(inputs[rx]).val();
+                    fieldSelected.append("<div class='checkbox'><label><input type='checkbox' name=''>"+$(inputs[rx]).val()+"<label></div>")
+                }
+                //这里发送一个保存或者修改域的请求
+                var tempField = fieldSelected;
+                $.post(saveFieldUrl,params,function(result){
+                    //处理保存结果
+                    if(result.code!=200){
+                        //给出提示
+                        msgAlert(result.msg,"保存失敗提示")
+                    }else if(result.code==200){
+                        // 将返回的paperId保存当前的全局变量中
+                        tempField.attr("fieldid",result.msg);
+                    }
+                })
+                break;
+            }
+        });
+
+        //+-按钮事件
+        $(".glyphicon-plus").click(function(){
+            var parent = $(this).parent();
+            var selectorsElement = parent.next();
+            var children = selectorsElement.children();
+            selectorsElement.append($(children[children.length-1]).clone());
+            //给 - 绑事件
+            $(".glyphicon-minus").unbind().bind('click',function(){
+                $(this).parent().parent().remove();
+            });
+        });
+
+        
+
+        // 给移除域的按钮绑定事件
+        $("#removeFieldBtn").bind('click',function(){
+            //判断当前激活的域是否存在
+            if(fieldSelected){
+                var deleteFieldId = fieldSelected.attr("fieldId");
+                // console.log(fieldSelected);
+                if(deleteFieldId){
+                    //不做回调处理。  默认就是后端肯定能删除成功
+                    $.get(deleteFieldUrl,{fieldId:deleteFieldId});
+                }
+                fieldSelected.remove();
+                // 将fieldSelected 置空
+                fieldSelected = undefined;
+            }
+        })
+    </script>
+</body>
+</html>
